@@ -1,9 +1,16 @@
-# Goethe Reading App
+# goethe_reading_app
 
-I'm currently on the challenge of reading Goethe's work on pure german, as a way to deepen my german competences and as a way to get in touch with the greatest german poet.
+A new Flutter project.
 
-Based on this need, this is a Flutter app customly crafted for me to attack this challenge.
+## Getting Started
 
-That's the scratch:
+This project is a starting point for a Flutter application.
 
-<img width="346" alt="image" src="https://user-images.githubusercontent.com/22605271/173431464-21373f7d-a6b7-4d9d-b1b4-cde9b42f960e.png">
+A few resources to get you started if this is your first Flutter project:
+
+- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+
+For help getting started with Flutter, view our
+[online documentation](https://flutter.dev/docs), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
