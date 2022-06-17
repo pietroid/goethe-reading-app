@@ -10,15 +10,10 @@ class IndicatorPainter extends CustomPainter {
 
     paint.color = Color(0xff959595);
     path = Path();
-    path.lineTo(0, size.height * 0.53);
-    path.cubicTo(0, size.height * 0.53, size.width, size.height * 0.03,
-        size.width, size.height * 0.03);
-    path.cubicTo(size.width, size.height * 0.03, size.width, size.height * 1.03,
-        size.width, size.height * 1.03);
-    path.cubicTo(size.width, size.height * 1.03, 0, size.height * 0.53, 0,
-        size.height * 0.53);
-    path.cubicTo(
-        0, size.height * 0.53, 0, size.height * 0.53, 0, size.height * 0.53);
+    path.lineTo(size.width * 0.2, size.height * 0.5);
+    path.lineTo(size.width, size.height);
+    path.lineTo(size.width, 0);
+    path.lineTo(size.width * 0.2, size.height * 0.5);
     canvas.drawPath(path, paint);
   }
 

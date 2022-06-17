@@ -2,51 +2,23 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:goethe_reading_app/components/indicator.dart';
+import 'package:goethe_reading_app/components/line_translation_bottom_menu.dart';
 import 'package:goethe_reading_app/components/line_widget.dart';
 import 'package:goethe_reading_app/components/strophe_widget.dart';
+import 'package:goethe_reading_app/components/word_translation_bottom_menu.dart';
 import 'package:goethe_reading_app/model/line.dart';
 import 'package:goethe_reading_app/model/poem.dart';
 import 'package:goethe_reading_app/model/strophe.dart';
 import 'package:goethe_reading_app/model/word.dart';
+import 'package:goethe_reading_app/model/word_translator.dart';
 import 'package:provider/provider.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => Poem([
-        Strophe([
-          Line([Word('Das'), Word('Buch'), Word('ist'), Word('langweilig')],
-              lineTranslation: 'The book is boring'),
-          Line([Word('Das'), Word('Buch'), Word('ist'), Word('langweilig')],
-              lineTranslation: 'The book is boring'),
-          Line([Word('Das'), Word('Buch'), Word('ist'), Word('langweilig')],
-              lineTranslation: 'The book is boring'),
-          Line([Word('Das'), Word('Buch'), Word('ist'), Word('langweilig')],
-              lineTranslation: 'The book is boring'),
-        ]),
-        Strophe([
-          Line([Word('Das'), Word('Buch'), Word('ist'), Word('langweilig')],
-              lineTranslation: 'The book is boring'),
-          Line([Word('Das'), Word('Buch'), Word('ist'), Word('langweilig')],
-              lineTranslation: 'The book is boring'),
-          Line([Word('Das'), Word('Buch'), Word('ist'), Word('langweilig')],
-              lineTranslation: 'The book is boring'),
-          Line([Word('Das'), Word('Buch'), Word('ist'), Word('langweilig')],
-              lineTranslation: 'The book is boring'),
-        ]),
-        Strophe([
-          Line([Word('Das'), Word('Buch'), Word('ist'), Word('langweilig')],
-              lineTranslation: 'The book is boring'),
-          Line([Word('Das'), Word('Buch'), Word('ist'), Word('langweilig')],
-              lineTranslation: 'The book is boring'),
-          Line([Word('Das'), Word('Buch'), Word('ist'), Word('langweilig')],
-              lineTranslation: 'The book is boring'),
-          Line([Word('Das'), Word('Buch'), Word('ist'), Word('langweilig')],
-              lineTranslation: 'The book is boring'),
-        ]),
-      ]),
-      child: const MyApp(),
-    ),
+    MultiProvider(providers: [
+      ChangeNotifierProvider(create: (context) => Poem()),
+      ChangeNotifierProvider(create: (context) => WordTranslator())
+    ], child: const MyApp()),
   );
 }
 
@@ -72,7 +44,7 @@ class MyApp extends StatelessWidget {
       },
     );
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Read Goethe',
       theme: ThemeData(
         primarySwatch: white,
       ),
@@ -81,29 +53,47 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   final String title;
   const MyHomePage({Key? key, required this.title}) : super(key: key);
 
   @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  initState() {
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+      final poem = Provider.of<Poem>(context, listen: false);
+      await poem.loadPoem();
+      poem.selectLine(0);
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final poem = Provider.of<Poem>(context);
-    final ScrollController _scrollController = ScrollController();
+
     _scrollController.addListener(() {
       if (_scrollController.offset >= 0)
         poem.selectLine((_scrollController.offset / 20).toInt());
     });
+    if (poem.strophes.length > 0) print('length: ${poem.strophes[1].lines}');
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(),
-        title: Text(title),
+        title: Text(widget.title),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(40.0, 40.0, 40.0, 0.0),
+              padding: const EdgeInsets.fromLTRB(25.0, 40.0, 25.0, 0.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -126,8 +116,8 @@ class MyHomePage extends StatelessWidget {
                       }),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 90),
+                  const Padding(
+                    padding: const EdgeInsets.only(top: 85),
                     child: Indicator(),
                   ),
                 ],
@@ -135,83 +125,8 @@ class MyHomePage extends StatelessWidget {
             ),
           ),
           if (poem.currentSelectedWord != null)
-            SizedBox(
-              width: double.infinity,
-              height: 100,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(width: 1.0, color: Color(0xFFBABABA)),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Stack(
-                    alignment: AlignmentDirectional.centerStart,
-                    children: [
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Hexenmeister',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(height: 5),
-                            Text('Sorcerer')
-                          ]),
-                      Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            IconButton(
-                              onPressed: poem.unselectWord,
-                              icon: Icon(Icons.close),
-                            ),
-                          ]),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          SizedBox(
-              width: double.infinity,
-              height: 80,
-              child: Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(width: 1.0, color: Color(0xFFBABABA)),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Stack(
-                        alignment: AlignmentDirectional.centerStart,
-                        children: [
-                          Text(poem.currentSelectedLine?.lineTranslation ?? ''),
-                          if (!poem.translationVisible)
-                            ClipRect(
-                              child: BackdropFilter(
-                                  filter: ImageFilter.blur(
-                                      sigmaX: 3.0, sigmaY: 3.0),
-                                  child: Container()),
-                            ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  poem.toggleTranslation();
-                                },
-                                icon: poem.translationVisible
-                                    ? Icon(Icons.visibility_off)
-                                    : Icon(Icons.visibility),
-                              )
-                            ],
-                          ),
-                        ]),
-                  ))),
+            const WordTranslationBottomMenu(),
+          const LineTranslationBottomMenu(),
         ],
       ),
     );

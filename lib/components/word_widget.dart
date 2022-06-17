@@ -3,6 +3,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:goethe_reading_app/model/poem.dart';
 import 'package:goethe_reading_app/model/word.dart';
+import 'package:goethe_reading_app/model/word_translator.dart';
 import 'package:provider/provider.dart';
 
 class WordWidget extends StatelessWidget {
@@ -19,20 +20,23 @@ class WordWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final poem = Provider.of<Poem>(context);
-    final margin = highlighted ? 2.0 : 3.0;
-    //highlighted ? 2.0 : 3.0;
+    final wordTranslator = Provider.of<WordTranslator>(context);
+    final margin = highlighted ? 1.5 : 2.2;
     return GestureDetector(
       onTap: () {
         poem.selectToggleWord(word);
+        wordTranslator.requestTranslation(word.text);
       },
       child: Container(
-        color: word.selected ? Colors.blue : null,
+        color: word.selected ? Color(0xFF8C8AFF) : null,
         child: Padding(
           padding: EdgeInsets.only(left: margin, right: margin),
           child: Text(
             word.text,
             style: TextStyle(
-                fontWeight: highlighted ? FontWeight.bold : FontWeight.normal),
+              color: word.selected ? Colors.white : null,
+              fontWeight: highlighted ? FontWeight.bold : FontWeight.normal,
+            ),
           ),
         ),
       ),
